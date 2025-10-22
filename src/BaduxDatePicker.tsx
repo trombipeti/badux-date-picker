@@ -1,67 +1,94 @@
-import { Stack, TextField } from "@mui/material";
-import { type FunctionComponent } from "react";
+import { Stack, TextField, Button } from "@mui/material";
+import { type FunctionComponent, useState } from "react";
 
 export type BaduxDatePickerProps = {
-    value?: Date | null;
     onChange?: (date: Date | null) => void;
 };
 
+type NumberStepperAdornmentProps = {
+	onStep: (step: number) => void;
+}
+
+const NumberStepperAdornment: FunctionComponent<NumberStepperAdornmentProps> = ({
+	onStep
+}) => {
+	return <Stack>
+		<Button sx={{minWidth: 0, padding: 0}} onClick={() => onStep(1)}>
+			▲
+		</Button>
+		<Button sx={{minWidth: 0, padding: 0}} onClick={() => onStep(-1)}>
+			▼
+		</Button>
+	</Stack>
+}
+
 const BaduxDatePicker: FunctionComponent<BaduxDatePickerProps> = ({
-    value,
     onChange,
 }) => {
 
-    const getMonth = () => value?.getMonth() ?? Math.floor(Math.random() * 12);
-    const getYear = () => value?.getFullYear() ?? Math.floor(Math.random() * 3000) + 1000;
-    const getDay = () => value?.getDate() ?? Math.floor(Math.random() * 33);
+    const getRandomMonth = () => Math.floor(Math.random() * 12);
+    const getRandomYear = () => Math.floor(Math.random() * 3000) + 1000;
+    const getRandomDay = () => Math.floor(Math.random() * 33);
 
-    return (
+	const [day, setDay] = useState<string>(getRandomDay().toString());
+	const [month, setMonth] = useState<string>(getRandomMonth().toString());
+	const [year, setYear] = useState<string>(getRandomYear().toString());
+
+	const handleChange = (date: Date) => {
+		onChange?.(date);
+		setDay(date.getDate().toString());
+		setMonth((date.getMonth() + 1).toString());
+		setYear(date.getFullYear().toString());
+	}
+
+    return (<Stack spacing={2}>
         <Stack direction={"row"} spacing={2}>
             <TextField
                 name="postal-code"
                 label="Nap"
-                // value is the day of the month in the value prop
-                value={value?.getDate() ?? ""}
-                onChange={(e) =>
-                    onChange?.(
+                value={day}
+                onChange={(e) => {
+                    e.target.value !== "" && !isNaN(+e.target.value) && handleChange(
                         new Date(
-                            getYear(),
-                            getMonth(),
+                            +year,
+                            +month,
                             +e.target.value,
                         ),
-                    )
-                }
+                    );
+                }}
             />
             <TextField
                 name=""
                 label="Hó"
-                value={value?.getMonth() === undefined ? "" : value.getMonth() + 1}
-                onChange={(e) =>
-                    onChange?.(
+                value={month}
+                onChange={(e) => {
+                    e.target.value !== "" && !isNaN(+e.target.value) && handleChange(
                         new Date(
-                            getYear(),
+                            +year,
                             +e.target.value - 1,
-                            getDay(),
+                            +day,
                         ),
-                    )
-                }
+                    );
+                }}
             />
             <TextField
                 name="postal-code"
                 label="Év"
-                value={value?.getFullYear() ?? ""}
-                onChange={(e) =>
-                    onChange?.(
-                        new Date(
-                            +e.target.value,
-                            0,
-                            1,
-                        ),
-                    )
-                }
+				slotProps={{
+					input: {
+						endAdornment: (
+							<NumberStepperAdornment
+								onStep={s => handleChange(new Date(+year + s, 0, 1))}
+							/>
+						),
+						readOnly: true
+					}
+				}}
+                value={year}
             />
         </Stack>
-    );
+		<Button onClick={() => handleChange(new Date())} variant="contained">Set to current date</Button>
+    </Stack>);
 };
 
 export default BaduxDatePicker;
