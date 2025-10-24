@@ -13,20 +13,29 @@ type NumberStepperAdornmentProps = {
 const NumberStepperAdornment: FunctionComponent<
     NumberStepperAdornmentProps
 > = ({ value, onStep }) => {
-    const [clicksInSec, setClicksInSec] = useState(1);
+    const [burstClickCount, setBurstClickCount] = useState(1);
     const [resetTimeout, setResetTimeout] = useState<number | undefined>(
         undefined,
     );
 
     const handleStep = (step: number) => {
-        onStep(value + step * clicksInSec);
+        const newStep = Math.floor(
+            step +
+                Math.abs(
+                    Math.sin(burstClickCount ^ 3) *
+                        (Math.sin(burstClickCount) +
+                            4 * Math.cos(burstClickCount) +
+                            burstClickCount),
+                ),
+        );
+        onStep(value + newStep);
         clearTimeout(resetTimeout);
         setResetTimeout(
             setTimeout(() => {
-                setClicksInSec(1);
+                setBurstClickCount(1);
             }, 1000),
         );
-        setClicksInSec((c) => c + 1);
+        setBurstClickCount((c) => c + 1);
     };
 
     return (
