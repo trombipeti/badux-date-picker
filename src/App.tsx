@@ -3,8 +3,10 @@ import BaduxDatePicker from "./BaduxDatePicker";
 import { useState } from "react";
 import { CookieBanner } from "./CookieBanner";
 
+
 function App() {
-    const [date, setDate] = useState<Date | null>(new Date());
+
+    const [date, setDate] = useState<Date | null>(null);
     return (
         <>
             <CssBaseline />
