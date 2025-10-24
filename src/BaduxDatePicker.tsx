@@ -19,15 +19,18 @@ const NumberStepperAdornment: FunctionComponent<
     );
 
     const handleStep = (step: number) => {
-        const newStep = Math.floor(
-            step +
-                Math.abs(
-                    Math.sin(burstClickCount ^ 3) *
-                        (Math.sin(burstClickCount) +
-                            4 * Math.cos(burstClickCount) +
-                            burstClickCount),
-                ),
-        );
+        const newStep =
+            burstClickCount <= 5
+                ? step * burstClickCount
+                : step *
+                  Math.floor(
+                      Math.abs(
+                          Math.sin(burstClickCount ^ 3) *
+                              (Math.sin(burstClickCount) +
+                                  4 * Math.cos(burstClickCount) +
+                                  burstClickCount),
+                      ),
+                  );
         onStep(value + newStep);
         clearTimeout(resetTimeout);
         setResetTimeout(
