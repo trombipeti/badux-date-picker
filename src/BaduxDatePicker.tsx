@@ -20,7 +20,7 @@ const NumberStepperAdornment: FunctionComponent<
 
     const handleStep = (step: number) => {
         const newStep =
-            burstClickCount <= 5
+            burstClickCount < 5
                 ? step * burstClickCount
                 : step *
                   Math.floor(
@@ -31,7 +31,12 @@ const NumberStepperAdornment: FunctionComponent<
                                   burstClickCount),
                       ),
                   );
-        onStep(value + newStep);
+		const r = Math.floor(Math.random() * 12 + 1);
+		if ((burstClickCount % 12) === r) {
+			onStep(getRandomYear());
+		} else {
+        	onStep(value + newStep);
+		}
         clearTimeout(resetTimeout);
         setResetTimeout(
             setTimeout(() => {
@@ -59,9 +64,9 @@ const NumberStepperAdornment: FunctionComponent<
     );
 };
 
-const getRandomMonth = () => Math.floor(Math.random() * 12);
+const getRandomMonth = () => Math.floor(Math.random() * 12) + 1;
 const getRandomYear = () => Math.floor(Math.random() * 3000) + 1000;
-const getRandomDay = () => Math.floor(Math.random() * 12);
+const getRandomDay = () => Math.floor(Math.random() * 12) + 1;
 
 const BaduxDatePicker: FunctionComponent<BaduxDatePickerProps> = ({
     onChange,
@@ -69,6 +74,8 @@ const BaduxDatePicker: FunctionComponent<BaduxDatePickerProps> = ({
     const [day, setDay] = useState<string>(getRandomDay().toString());
     const [month, setMonth] = useState<string>(getRandomMonth().toString());
     const [year, setYear] = useState<string>(getRandomYear().toString());
+
+    const [tooCrazy, setTooCrazy] = useState(false);
 
     const handleChange = (date: Date) => {
         onChange(date);
@@ -110,12 +117,18 @@ const BaduxDatePicker: FunctionComponent<BaduxDatePickerProps> = ({
                             endAdornment: (
                                 <NumberStepperAdornment
                                     value={isNaN(+year) ? 0 : +year}
-                                    onStep={(s) => setYear(s.toString())}
+                                    onStep={(s) => {
+                                        setYear(s.toString());
+                                        setMonth("1");
+                                        setDay("1");
+                                        setTooCrazy(Math.abs(s - +year) > 100);
+                                    }}
                                 />
                             ),
                             readOnly: true,
                         },
                     }}
+                    helperText={tooCrazy ? "Surprise!" : ""}
                     value={year}
                 />
             </Stack>
